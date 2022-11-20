@@ -1,0 +1,36 @@
+{
+    "name": "klisl/laravel-widgets",
+    "description": "Package for using widgets in Laravel-5",
+	"type": "library",
+	"keywords": [
+        "laravel",
+        "widgets",
+        "widget"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sergey Klimenchuk",
+            "email": "ksl80@ukr.net",
+			"homepage": "https://github.com/klisl/laravel-widgets",
+			"role": "Developer"
+        }
+    ],
+	"minimum-stability": "stable",
+	"require": {
+        "php": ">=5.4.0",
+        "laravel/framework": "~5.3"
+    },
+    "extra": {
+      "laravel": {
+        "providers": [
+          "Klisl\\Widgets\\WidgetServiceProvider"
+        ]
+      }
+    },
+    "autoload": {
+        "psr-4": {
+			"Klisl\\Widgets\\": "src"
+        }
+    }
+}
