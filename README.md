@@ -1,118 +1,179 @@
-laravel-widgets
-=================
-[![Laravel 5](https://img.shields.io/badge/Laravel-5-orange.svg?style=flat-square)](http://laravel.com)
-[![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://tldrlegal.com/license/mit-license)
-
-Пакет для удобного создания и использования виджетов в Laravel-5
-
-  * Удобный синтаксис - вызов любого виджета из шаблона с помощью простой директивы @widget, которая в качестве первого аргумента принимает название виджета, например:
-```php
-@widget('menu')
-```
-  * Простые правила создания виджетов.
-  * Создание объекта виджета только в случае непосредственного его запроса.
-  * Только самый необходимый функционал, разработанный с учетом архитектуры Laravel-5.4
+# Laravel Drag and Drop menu editor like wordpress
 
 
-  
-Установка
-------------------
-Установка пакета с помощью Composer.
 
-```
-composer require klisl/laravel-widgets
-```
-
-Если версия Laravel меньше чем 5.5 - добавьте в файл `config/app.php` вашего проекта в конец массива `providers` :
+1. Run
 
 ```php
-Klisl\Widgets\WidgetServiceProvider::class,
-```
-Для версии >=5.5 данный шаг можно пропустить.
-
-
-После этого выполните в консоли команду публикации нужных ресурсов:
-
-```
-php artisan vendor:publish --provider="Klisl\Widgets\WidgetServiceProvider"
+composer require harimayco/laravel-menu
 ```
 
+**_Step 2 & 3 are optional if you are using laravel 5.5_**
 
-Использование
--------------
-
-В файле `config\widgets.php` находится массив, в котором, в качестве ключей нужно указать названия для виджетов которые вы будете создавать, а в качестве значений названия классов виджетов (с пространством имен). Например:
-```php
-'test' => 'App\Widgets\TestWidget'
-```
-
-Классы для своих виджетов нужно создавать в папке `app\Widgets`. Для размещения шаблонов виджетов предназначена папка `app\Widgets\views`.
-
-Класс виджета должен иметь соответствующее пространство имен: `namespace App\Widgets`. Так же класс виджета должен включать интерфейс ContractWidget и реализовывать его метод execute(). 
-Если виджет должен, для своей работы, получить какие-то данные из контроллера и тд. (передаются в шаблоне), то необходимо предусмотреть метод конструктор для класса виджета с получением аргумента в виде массива параметров.
-
-
-Примеры
--------------
-
-Пример минимального класса виджета:
+2. Add the following class, to "providers" array in the file config/app.php (optional on laravel 5.5)
 
 ```php
-<?php
-
-namespace App\Widgets;
-
-use Klisl\Widgets\Contract\ContractWidget;
-
-class TestWidget implements ContractWidget{
-	
-	public function execute(){
-				
-		return view('Widgets::test');
-		
-	}	
-}
+Harimayco\Menu\MenuServiceProvider::class,
 ```
 
-Шаблон данного виджета, файл test.blade.php (с произвольным контентом) должен находиться в папке `app\Widgets\views`.
+3. add facade in the file config/app.php (optional on laravel 5.5)
 
-Вызов данного виджета (из основного шаблона нужного контроллера):
 ```php
-@widget('test')
+'Menu' => Harimayco\Menu\Facades\Menu::class,
 ```
 
+4. Run publish
 
-Пример с передачей параметров:
 ```php
-<?php
-
-namespace App\Widgets;
-
-use Klisl\Widgets\Contract\ContractWidget;
-
-class TestWidget implements ContractWidget{
-	
-	public $num;
-		
-	public function __construct ($data){
-		$this->num = $data['num'];
-	}
-		
-	public function execute(){
-				
-		return view('Widgets::test', [
-			'num' => $this->num
-		]);
-		
-	}	
-}
+php artisan vendor:publish --provider="Harimayco\Menu\MenuServiceProvider"
 ```
 
-Вызов данного виджета с передачей параметров для обработки:
+5. Configure (optional) in **_config/menu.php_** :
+
+- **_CUSTOM MIDDLEWARE:_** You can add you own middleware
+- **_TABLE PREFIX:_** By default this package will create 2 new tables named "menus" and "menu_items" but you can still add your own table prefix avoiding conflict with existing table
+- **_TABLE NAMES_** If you want use specific name of tables you have to modify that and the migrations
+- **_Custom routes_** If you want to edit the route path you can edit the field
+- **_Role Access_** If you want to enable roles (permissions) on menu items
+
+6. Run migrate
+
 ```php
-@widget('test', ['num' => 5])
+php artisan migrate
 ```
 
-В каталоге `app\Widgets` уже находится тестовый виджет. Вы можете создавать свои на его основе.
+DONE
 
-Мой блог: [klisl.com](https://klisl.com)  
+### Menu Builder Usage Example - displays the builder
+
+On your view blade file
+
+```php
+@extends('app')
+
+@section('contents')
+    {!! Menu::render() !!}
+@endsection
+
+//YOU MUST HAVE JQUERY LOADED BEFORE menu scripts
+@push('scripts')
+    {!! Menu::scripts() !!}
+@endpush
+```
+
+### Using The Model
+
+Call the model class
+
+```php
+use Harimayco\Menu\Models\Menus;
+use Harimayco\Menu\Models\MenuItems;
+
+```
+
+### Menu Usage Example (a)
+
+A basic two-level menu can be displayed in your blade template
+
+##### Using Model Class
+```php
+
+/* get menu by id*/
+$menu = Menus::find(1);
+/* or by name */
+$menu = Menus::where('name','Test Menu')->first();
+
+/* or get menu by name and the items with EAGER LOADING (RECOMENDED for better performance and less query call)*/
+$menu = Menus::where('name','Test Menu')->with('items')->first();
+/*or by id */
+$menu = Menus::where('id', 1)->with('items')->first();
+
+//you can access by model result
+$public_menu = $menu->items;
+
+//or you can convert it to array
+$public_menu = $menu->items->toArray();
+
+```
+
+##### or Using helper
+```php
+// Using Helper 
+$public_menu = Menu::getByName('Public'); //return array
+
+```
+
+### Menu Usage Example (b)
+
+Now inside your blade template file place the menu using this simple example
+
+```php
+<div class="nav-wrap">
+    <div class="btn-menu">
+        <span></span>
+    </div><!-- //mobile menu button -->
+    <nav id="mainnav" class="mainnav">
+
+        @if($public_menu)
+        <ul class="menu">
+            @foreach($public_menu as $menu)
+            <li class="">
+                <a href="{{ $menu['link'] }}" title="">{{ $menu['label'] }}</a>
+                @if( $menu['child'] )
+                <ul class="sub-menu">
+                    @foreach( $menu['child'] as $child )
+                        <li class=""><a href="{{ $child['link'] }}" title="">{{ $child['label'] }}</a></li>
+                    @endforeach
+                </ul><!-- /.sub-menu -->
+                @endif
+            </li>
+            @endforeach
+        @endif
+
+        </ul><!-- /.menu -->
+    </nav><!-- /#mainnav -->
+ </div><!-- /.nav-wrap -->
+```
+
+### HELPERS
+
+### Get Menu Items By Menu ID
+
+```php
+use Harimayco\Menu\Facades\Menu;
+...
+/*
+Parameter: Menu ID
+Return: Array
+*/
+$menuList = Menu::get(1);
+```
+
+### Get Menu Items By Menu Name
+
+In this example, you must have a menu named _Admin_
+
+```php
+use Harimayco\Menu\Facades\Menu;
+...
+/*
+Parameter: Menu ID
+Return: Array
+*/
+$menuList = Menu::getByName('Admin');
+```
+
+### Customization
+
+you can edit the menu interface in **_resources/views/vendor/wmenu/menu-html.blade.php_**
+
+### Credits
+
+- [wmenu](https://github.com/lordmacu/wmenu) laravel package menu like wordpress
+
+### Compatibility
+
+- Tested with laravel 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 6.x, 7.x
+
+### KNOWN ISSUES
+- Not working with RTL websites [#21](https://github.com/harimayco/wmenu-builder/issues/21) (pull requests are welcome)
