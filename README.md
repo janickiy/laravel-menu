@@ -1,14 +1,12 @@
 # Laravel Drag and Drop menu editor like wordpress
 
 
-
 1. Run
 
 ```php
-composer require harimayco/laravel-menu
+composer require janickiy/laravel-menu
 ```
 
-**_Step 2 & 3 are optional if you are using laravel 5.5_**
 
 2. Add the following class, to "providers" array in the file config/app.php (optional on laravel 5.5)
 
@@ -173,7 +171,4 @@ you can edit the menu interface in **_resources/views/vendor/wmenu/menu-html.bla
 
 ### Compatibility
 
-- Tested with laravel 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 6.x, 7.x
-
-### KNOWN ISSUES
-- Not working with RTL websites [#21](https://github.com/harimayco/wmenu-builder/issues/21) (pull requests are welcome)
+- Tested with laravel 6.x, 7.x, 8.x, 9.x
