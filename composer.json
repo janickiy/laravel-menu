@@ -1,6 +1,6 @@
 {
     "name": "janickiy/laravel-menu",
-    "description": "drag and drop menu generator like wordpress for laravel 5",
+    "description": "drag and drop menu generator like wordpress for laravel",
     "keywords": ["Laravel", "Menu", "Wordpress", "Builder"],
     "authors": [
     	{
@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": ">=8.1",
+        "php": ">=7.2",
         "illuminate/support": "5.* || 6.* || 7.* || 8.* || 9.* || 10.*"
     },
     "autoload": {
