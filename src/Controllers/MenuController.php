@@ -69,7 +69,6 @@ class MenuController extends Controller
 
     public function addcustommenu()
     {
-
         $menuitem = new MenuItems();
         $menuitem->label = request()->input("labelmenu");
         $menuitem->link = request()->input("linkmenu");
@@ -90,14 +89,15 @@ class MenuController extends Controller
         $menu->save();
         if (is_array(request()->input("arraydata"))) {
             foreach (request()->input("arraydata") as $value) {
-
                 $menuitem = MenuItems::find($value["id"]);
                 $menuitem->parent = $value["parent"];
                 $menuitem->sort = $value["sort"];
                 $menuitem->depth = $value["depth"];
+
                 if (config('menu.use_roles')) {
                     $menuitem->role_id = request()->input("role_id");
                 }
+
                 $menuitem->save();
             }
         }
