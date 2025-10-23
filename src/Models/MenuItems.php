@@ -3,6 +3,8 @@
 namespace Harimayco\Menu\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Harimayco\Menu\Models\MenuItems;
 use Harimayco\Menu\Models\Menus;
 
@@ -19,26 +21,30 @@ class MenuItems extends Model
         $this->table = config('menu.table_prefix') . config('menu.table_name_items');
     }
 
-    public function getsons($id)
+    public function getsons(int $id)
     {
         return $this->where("parent", $id)->get();
     }
-    public function getall($id)
+    public function getall(int $id)
     {
         return $this->where("menu", $id)->orderBy("sort", "asc")->get();
     }
 
-    public static function getNextSortRoot($menu)
+    /**
+     * @param int $menu
+     * @return int
+     */
+    public static function getNextSortRoot(int $menu)
     {
         return self::where('menu', $menu)->max('sort') + 1;
     }
 
-    public function parent_menu()
+    public function parent_menu(): BelongsTo
     {
         return $this->belongsTo(Menus::class, 'menu');
     }
 
-    public function child()
+    public function child(): HasMany
     {
         return $this->hasMany(MenuItems::class, 'parent')->orderBy('sort', 'ASC');
     }

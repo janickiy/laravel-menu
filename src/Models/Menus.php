@@ -3,6 +3,7 @@
 namespace Harimayco\Menu\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Harimayco\Menu\Models\MenuItems;
 
 class Menus extends Model
@@ -15,12 +16,12 @@ class Menus extends Model
         $this->table = config('menu.table_prefix') . config('menu.table_name_menus');
     }
 
-    public static function byName($name)
+    public static function byName(string $name)
     {
-        return self::where('name', '=', $name)->first();
+        return self::where('name', $name)->first();
     }
 
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(MenuItems::class, 'menu')->with('child')->where('parent', 0)->orderBy('sort', 'ASC');
     }

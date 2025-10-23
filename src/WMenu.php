@@ -65,7 +65,7 @@ class WMenu
      * @param $name
      * @return array
      */
-    public static function getByName($name)
+    public static function getByName(string $name): array
     {
         $menu = Menus::byName($name);
         return is_null($menu) ? [] : self::get($menu->id);
