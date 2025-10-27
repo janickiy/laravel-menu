@@ -21,11 +21,11 @@ class MenuItems extends Model
         $this->table = config('menu.table_prefix') . config('menu.table_name_items');
     }
 
-    public function getsons(int $id)
+    public function getsons(?int $id)
     {
         return $this->where("parent", $id)->get();
     }
-    public function getall(int $id)
+    public function getall(?int $id)
     {
         return $this->where("menu", $id)->orderBy("sort", "asc")->get();
     }
