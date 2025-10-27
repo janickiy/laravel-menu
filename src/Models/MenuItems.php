@@ -34,7 +34,7 @@ class MenuItems extends Model
      * @param int $menu
      * @return int
      */
-    public static function getNextSortRoot(int $menu)
+    public static function getNextSortRoot(?int $menu)
     {
         return self::where('menu', $menu)->max('sort') + 1;
     }
