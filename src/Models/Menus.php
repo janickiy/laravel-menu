@@ -4,6 +4,7 @@ namespace Harimayco\Menu\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Harimayco\Menu\Models\MenuItems;
 
 class Menus extends Model
 {
@@ -22,6 +23,6 @@ class Menus extends Model
 
     public function items(): HasMany
     {
-        return $this->hasMany(\Harimayco\Menu\Models\MenuItems::class, 'menu')->with('child')->where('parent', 0)->orderBy('sort', 'ASC');
+        return $this->hasMany(MenuItems::class, 'menu')->with('child')->where('parent', 0)->orderBy('sort', 'ASC');
     }
 }
