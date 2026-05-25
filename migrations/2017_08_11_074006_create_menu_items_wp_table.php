@@ -8,12 +8,10 @@ class CreateMenuItemsWpTable extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create( config('menu.table_prefix') . config('menu.table_name_items') , function (Blueprint $table) {
+        Schema::create(config('menu.table_prefix') . config('menu.table_name_items'), function (Blueprint $table): void {
             $table->bigIncrements('id');
             $table->string('label');
             $table->string('link');
@@ -25,18 +23,16 @@ class CreateMenuItemsWpTable extends Migration
             $table->timestamps();
 
             $table->foreign('menu')->references('id')->on(config('menu.table_prefix') . config('menu.table_name_menus'))
-            ->onDelete('cascade')
-            ->onUpdate('cascade');
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists( config('menu.table_prefix') . config('menu.table_name_items'));
+        Schema::dropIfExists(config('menu.table_prefix') . config('menu.table_name_items'));
     }
 }

@@ -165,10 +165,15 @@ $menuList = Menu::getByName('Admin');
 
 you can edit the menu interface in **_resources/views/vendor/wmenu/menu-html.blade.php_**
 
+### Localization
+
+The menu interface is English by default. Set `MENU_LOCALE` or change `locale` in `config/menu.php` to use another supported interface language: `ru`, `de`, `fr`, `es`, `pt`, `zh`, `ja`, or `ar`.
+
 ### Credits
 
 - [wmenu](https://github.com/lordmacu/wmenu) laravel package menu like wordpress
 
 ### Compatibility
 
-- Tested with laravel 6.x, 7.x, 8.x, 9.x
+- PHP 8.3+
+- Tested with laravel 10.x, 11.x, 12.x, 13.x

@@ -9,7 +9,7 @@
     }
 
     function c(b) {
-        return a.expr.filters.visible(b) && !a(b).parents().addBack().filter(function() {
+        return a.expr.pseudos.visible(b) && !a(b).parents().addBack().filter(function() {
             return "hidden" === a.css(this, "visibility")
         }).length
     }
@@ -100,7 +100,9 @@
         return this.add(null == a ? this.prevObject : this.prevObject.filter(a))
     }), a("<a>").data("a-b", "a").removeData("a-b").data("a-b") && (a.fn.removeData = function(b) {
         return function(c) {
-            return arguments.length ? b.call(this, a.camelCase(c)) : b.call(this)
+            return arguments.length ? b.call(this, c.replace(/-([a-z])/g, function(a, b) {
+                return b.toUpperCase()
+            })) : b.call(this)
         }
     }(a.fn.removeData)), a.ui.ie = !!/msie [\w.]+/.exec(navigator.userAgent.toLowerCase()), a.fn.extend({
         focus: function(b) {
@@ -108,7 +110,7 @@
                 return "number" == typeof c ? this.each(function() {
                     var b = this;
                     setTimeout(function() {
-                        a(b).focus(), d && d.call(b)
+                        a(b).trigger("focus"), d && d.call(b)
                     }, c)
                 }) : b.apply(this, arguments)
             }
@@ -116,13 +118,13 @@
         disableSelection: function() {
             var a = "onselectstart" in document.createElement("div") ? "selectstart" : "mousedown";
             return function() {
-                return this.bind(a + ".ui-disableSelection", function(a) {
+                return this.on(a + ".ui-disableSelection", function(a) {
                     a.preventDefault()
                 })
             }
         }(),
         enableSelection: function() {
-            return this.unbind(".ui-disableSelection")
+            return this.off(".ui-disableSelection")
         },
         zIndex: function(b) {
             if (void 0 !== b) return this.css("zIndex", b);
@@ -180,7 +182,7 @@
             _proto: a.extend({}, d),
             _childConstructors: []
         }), h = new c, h.options = a.widget.extend({}, h.options), a.each(d, function(b, d) {
-            return a.isFunction(d) ? void(i[b] = function() {
+            return ("function"==typeof d) ? void(i[b] = function() {
                 var a = function() {
                         return c.prototype[b].apply(this, arguments)
                     },
@@ -216,7 +218,7 @@
                 i = this;
             return f = !g && h.length ? a.widget.extend.apply(null, [f].concat(h)) : f, this.each(g ? function() {
                 var c, d = a.data(this, e);
-                return "instance" === f ? (i = d, !1) : d ? a.isFunction(d[f]) && "_" !== f.charAt(0) ? (c = d[f].apply(d, h), c !== d && void 0 !== c ? (i = c && c.jquery ? i.pushStack(c.get()) : c, !1) : void 0) : a.error("no such method '" + f + "' for " + b + " widget instance") : a.error("cannot call methods on " + b + " prior to initialization; attempted to call method '" + f + "'")
+                return "instance" === f ? (i = d, !1) : d ? ("function"==typeof d[f]) && "_" !== f.charAt(0) ? (c = d[f].apply(d, h), c !== d && void 0 !== c ? (i = c && c.jquery ? i.pushStack(c.get()) : c, !1) : void 0) : a.error("no such method '" + f + "' for " + b + " widget instance") : a.error("cannot call methods on " + b + " prior to initialization; attempted to call method '" + f + "'")
             } : function() {
                 var b = a.data(this, e);
                 b ? (b.option(f || {}), b._init && b._init()) : a.data(this, e, new d(f, this))
@@ -242,7 +244,9 @@
         _create: a.noop,
         _init: a.noop,
         destroy: function() {
-            this._destroy(), this.element.unbind(this.eventNamespace).removeData(this.widgetFullName).removeData(a.camelCase(this.widgetFullName)), this.widget().unbind(this.eventNamespace).removeAttr("aria-disabled").removeClass(this.widgetFullName + "-disabled ui-state-disabled"), this.bindings.unbind(this.eventNamespace), this.hoverable.removeClass("ui-state-hover"), this.focusable.removeClass("ui-state-focus")
+            this._destroy(), this.element.off(this.eventNamespace).removeData(this.widgetFullName).removeData(this.widgetFullName.replace(/-([a-z])/g, function(a, b) {
+                return b.toUpperCase()
+            })), this.widget().off(this.eventNamespace).removeAttr("aria-disabled").removeClass(this.widgetFullName + "-disabled ui-state-disabled"), this.bindings.off(this.eventNamespace), this.hoverable.removeClass("ui-state-hover"), this.focusable.removeClass("ui-state-focus")
         },
         _destroy: a.noop,
         widget: function() {
@@ -290,11 +294,11 @@
                 var i = d.match(/^([\w:-]*)\s*(.*)$/),
                     j = i[1] + f.eventNamespace,
                     k = i[2];
-                k ? e.delegate(k, j, h) : c.bind(j, h)
+                k ? e.on(j,k, h) : c.on(j, h)
             })
         },
         _off: function(b, c) {
-            c = (c || "").split(" ").join(this.eventNamespace + " ") + this.eventNamespace, b.unbind(c).undelegate(c), this.bindings = a(this.bindings.not(b).get()), this.focusable = a(this.focusable.not(b).get()), this.hoverable = a(this.hoverable.not(b).get())
+            c = (c || "").split(" ").join(this.eventNamespace + " ") + this.eventNamespace, b.off(c).off(c), this.bindings = a(this.bindings.not(b).get()), this.focusable = a(this.focusable.not(b).get()), this.hoverable = a(this.hoverable.not(b).get())
         },
         _delay: function(a, b) {
             function c() {
@@ -327,7 +331,7 @@
             var e, f, g = this.options[b];
             if (d = d || {}, c = a.Event(c), c.type = (b === this.widgetEventPrefix ? b : this.widgetEventPrefix + b).toLowerCase(), c.target = this.element[0], f = c.originalEvent)
                 for (e in f) e in c || (c[e] = f[e]);
-            return this.element.trigger(c, d), !(a.isFunction(g) && g.apply(this.element[0], [c].concat(d)) === !1 || c.isDefaultPrevented())
+            return this.element.trigger(c, d), !(("function"==typeof g) && g.apply(this.element[0], [c].concat(d)) === !1 || c.isDefaultPrevented())
         }
     }, a.each({
         show: "fadeIn",
@@ -371,14 +375,14 @@
         },
         _mouseInit: function() {
             var b = this;
-            this.element.bind("mousedown." + this.widgetName, function(a) {
+            this.element.on("mousedown." + this.widgetName, function(a) {
                 return b._mouseDown(a)
-            }).bind("click." + this.widgetName, function(c) {
+            }).on("click." + this.widgetName, function(c) {
                 return !0 === a.data(c.target, b.widgetName + ".preventClickEvent") ? (a.removeData(c.target, b.widgetName + ".preventClickEvent"), c.stopImmediatePropagation(), !1) : void 0
             }), this.started = !1
         },
         _mouseDestroy: function() {
-            this.element.unbind("." + this.widgetName), this._mouseMoveDelegate && this.document.unbind("mousemove." + this.widgetName, this._mouseMoveDelegate).unbind("mouseup." + this.widgetName, this._mouseUpDelegate)
+            this.element.off("." + this.widgetName), this._mouseMoveDelegate && this.document.off("mousemove." + this.widgetName, this._mouseMoveDelegate).off("mouseup." + this.widgetName, this._mouseUpDelegate)
         },
         _mouseDown: function(c) {
             if (!b) {
@@ -392,7 +396,7 @@
                     return d._mouseMove(a)
                 }, this._mouseUpDelegate = function(a) {
                     return d._mouseUp(a)
-                }, this.document.bind("mousemove." + this.widgetName, this._mouseMoveDelegate).bind("mouseup." + this.widgetName, this._mouseUpDelegate), c.preventDefault(), b = !0, !0)) : !0
+                }, this.document.on("mousemove." + this.widgetName, this._mouseMoveDelegate).on("mouseup." + this.widgetName, this._mouseUpDelegate), c.preventDefault(), b = !0, !0)) : !0
             }
         },
         _mouseMove: function(b) {
@@ -403,7 +407,7 @@
             return (b.which || b.button) && (this._mouseMoved = !0), this._mouseStarted ? (this._mouseDrag(b), b.preventDefault()) : (this._mouseDistanceMet(b) && this._mouseDelayMet(b) && (this._mouseStarted = this._mouseStart(this._mouseDownEvent, b) !== !1, this._mouseStarted ? this._mouseDrag(b) : this._mouseUp(b)), !this._mouseStarted)
         },
         _mouseUp: function(c) {
-            return this.document.unbind("mousemove." + this.widgetName, this._mouseMoveDelegate).unbind("mouseup." + this.widgetName, this._mouseUpDelegate), this._mouseStarted && (this._mouseStarted = !1, c.target === this._mouseDownEvent.target && a.data(c.target, this.widgetName + ".preventClickEvent", !0), this._mouseStop(c)), b = !1, !1
+            return this.document.off("mousemove." + this.widgetName, this._mouseMoveDelegate).off("mouseup." + this.widgetName, this._mouseUpDelegate), this._mouseStarted && (this._mouseStarted = !1, c.target === this._mouseDownEvent.target && a.data(c.target, this.widgetName + ".preventClickEvent", !0), this._mouseStop(c)), b = !1, !1
         },
         _mouseDistanceMet: function(a) {
             return Math.max(Math.abs(this._mouseDownEvent.pageX - a.pageX), Math.abs(this._mouseDownEvent.pageY - a.pageY)) >= this.options.distance
@@ -633,8 +637,8 @@
                 j = this._connectWith();
             if (j && b)
                 for (d = j.length - 1; d >= 0; d--)
-                    for (f = a(j[d]), e = f.length - 1; e >= 0; e--) g = a.data(f[e], this.widgetFullName), g && g !== this && !g.options.disabled && i.push([a.isFunction(g.options.items) ? g.options.items.call(g.element) : a(g.options.items, g.element).not(".ui-sortable-helper").not(".ui-sortable-placeholder"), g]);
-            for (i.push([a.isFunction(this.options.items) ? this.options.items.call(this.element, null, {
+                    for (f = a(j[d]), e = f.length - 1; e >= 0; e--) g = a.data(f[e], this.widgetFullName), g && g !== this && !g.options.disabled && i.push([("function"==typeof g.options.items) ? g.options.items.call(g.element) : a(g.options.items, g.element).not(".ui-sortable-helper").not(".ui-sortable-placeholder"), g]);
+            for (i.push([("function"==typeof this.options.items) ? this.options.items.call(this.element, null, {
                     options: this.options,
                     item: this.currentItem
                 }) : a(this.options.items, this.element).not(".ui-sortable-helper").not(".ui-sortable-placeholder"), this]), d = i.length - 1; d >= 0; d--) i[d][0].each(c);
@@ -652,14 +656,14 @@
             this.items = [], this.containers = [this];
             var c, d, e, f, g, h, i, j, k = this.items,
                 l = [
-                    [a.isFunction(this.options.items) ? this.options.items.call(this.element[0], b, {
+                    [("function"==typeof this.options.items) ? this.options.items.call(this.element[0], b, {
                         item: this.currentItem
                     }) : a(this.options.items, this.element), this]
                 ],
                 m = this._connectWith();
             if (m && this.ready)
                 for (c = m.length - 1; c >= 0; c--)
-                    for (e = a(m[c]), d = e.length - 1; d >= 0; d--) f = a.data(e[d], this.widgetFullName), f && f !== this && !f.options.disabled && (l.push([a.isFunction(f.options.items) ? f.options.items.call(f.element[0], b, {
+                    for (e = a(m[c]), d = e.length - 1; d >= 0; d--) f = a.data(e[d], this.widgetFullName), f && f !== this && !f.options.disabled && (l.push([("function"==typeof f.options.items) ? f.options.items.call(f.element[0], b, {
                         item: this.currentItem
                     }) : a(f.options.items, f.element), f]), this.containers.push(f));
             for (c = l.length - 1; c >= 0; c--)
@@ -717,7 +721,7 @@
         },
         _createHelper: function(b) {
             var c = this.options,
-                d = a.isFunction(c.helper) ? a(c.helper.apply(this.element[0], [b, this.currentItem])) : "clone" === c.helper ? this.currentItem.clone() : this.currentItem;
+                d = ("function"==typeof c.helper) ? a(c.helper.apply(this.element[0], [b, this.currentItem])) : "clone" === c.helper ? this.currentItem.clone() : this.currentItem;
             return d.parents("body").length || a("parent" !== c.appendTo ? c.appendTo : this.currentItem[0].parentNode)[0].appendChild(d[0]), d[0] === this.currentItem[0] && (this._storedCSS = {
                 width: this.currentItem[0].style.width,
                 height: this.currentItem[0].style.height,
@@ -920,7 +924,7 @@
         _blurActiveElement: function(b) {
             var c = this.document[0];
             if (this.handleElement.is(b.target)) try {
-                c.activeElement && "body" !== c.activeElement.nodeName.toLowerCase() && a(c.activeElement).blur()
+                c.activeElement && "body" !== c.activeElement.nodeName.toLowerCase() && a(c.activeElement).trigger("blur")
             } catch (d) {}
         },
         _mouseStart: function(b) {
@@ -952,12 +956,12 @@
         _mouseStop: function(b) {
             var c = this,
                 d = !1;
-            return a.ui.ddmanager && !this.options.dropBehaviour && (d = a.ui.ddmanager.drop(this, b)), this.dropped && (d = this.dropped, this.dropped = !1), "invalid" === this.options.revert && !d || "valid" === this.options.revert && d || this.options.revert === !0 || a.isFunction(this.options.revert) && this.options.revert.call(this.element, d) ? a(this.helper).animate(this.originalPosition, parseInt(this.options.revertDuration, 10), function() {
+            return a.ui.ddmanager && !this.options.dropBehaviour && (d = a.ui.ddmanager.drop(this, b)), this.dropped && (d = this.dropped, this.dropped = !1), "invalid" === this.options.revert && !d || "valid" === this.options.revert && d || this.options.revert === !0 || ("function"==typeof this.options.revert) && this.options.revert.call(this.element, d) ? a(this.helper).animate(this.originalPosition, parseInt(this.options.revertDuration, 10), function() {
                 c._trigger("stop", b) !== !1 && c._clear()
             }) : this._trigger("stop", b) !== !1 && this._clear(), !1
         },
         _mouseUp: function(b) {
-            return this._unblockFrames(), a.ui.ddmanager && a.ui.ddmanager.dragStop(this, b), this.handleElement.is(b.target) && this.element.focus(), a.ui.mouse.prototype._mouseUp.call(this, b)
+            return this._unblockFrames(), a.ui.ddmanager && a.ui.ddmanager.dragStop(this, b), this.handleElement.is(b.target) && this.element.trigger("focus"), a.ui.mouse.prototype._mouseUp.call(this, b)
         },
         cancel: function() {
             return this.helper.is(".ui-draggable-dragging") ? this._mouseUp({}) : this._clear(), this
@@ -973,7 +977,7 @@
         },
         _createHelper: function(b) {
             var c = this.options,
-                d = a.isFunction(c.helper),
+                d = ("function"==typeof c.helper),
                 e = d ? a(c.helper.apply(this.element[0], [b])) : "clone" === c.helper ? this.element.clone().removeAttr("id") : this.element;
             return e.parents("body").length || e.appendTo("parent" === c.appendTo ? this.element[0].parentNode : c.appendTo), d && e[0] === this.element[0] && this._setPositionRelative(), e[0] === this.element[0] || /(fixed|absolute)/.test(e.css("position")) || e.css("position", "absolute"), e
         },
@@ -1247,7 +1251,7 @@
         _create: function() {
             var b, c = this.options,
                 d = c.accept;
-            this.isover = !1, this.isout = !0, this.accept = a.isFunction(d) ? d : function(a) {
+            this.isover = !1, this.isout = !0, this.accept = ("function"==typeof d) ? d : function(a) {
                 return a.is(d)
             }, this.proportions = function() {
                 return arguments.length ? void(b = arguments[0]) : b ? b : b = {
@@ -1267,7 +1271,7 @@
             this._splice(b), this.element.removeClass("ui-droppable ui-droppable-disabled")
         },
         _setOption: function(b, c) {
-            if ("accept" === b) this.accept = a.isFunction(c) ? c : function(a) {
+            if ("accept" === b) this.accept = ("function"==typeof c) ? c : function(a) {
                 return a.is(c)
             };
             else if ("scope" === b) {
@@ -1366,7 +1370,7 @@
             }), d
         },
         dragStart: function(b, c) {
-            b.element.parentsUntil("body").bind("scroll.droppable", function() {
+            b.element.parentsUntil("body").on("scroll.droppable", function() {
                 b.options.refreshPositions || a.ui.ddmanager.prepareOffsets(b, c)
             })
         },
@@ -1382,7 +1386,7 @@
             })
         },
         dragStop: function(b, c) {
-            b.element.parentsUntil("body").unbind("scroll.droppable"), b.options.refreshPositions || a.ui.ddmanager.prepareOffsets(b, c)
+            b.element.parentsUntil("body").off("scroll.droppable"), b.options.refreshPositions || a.ui.ddmanager.prepareOffsets(b, c)
         }
     }, a.ui.droppable
 });
@@ -1395,20 +1399,20 @@ var postboxes;
     postboxes = {
         add_postbox_toggles: function(c, d) {
             var e = this;
-            e.init(c, d), a(".postbox .hndle, .postbox .handlediv").bind("click.postboxes", function() {
+            e.init(c, d), a(".postbox .hndle, .postbox .handlediv").on("click.postboxes", function() {
                 var d = a(this).parent(".postbox"),
                     f = d.attr("id");
-                "dashboard_browser_nag" != f && (d.toggleClass("closed"), "press-this" != c && e.save_state(c), f && (!d.hasClass("closed") && a.isFunction(postboxes.pbshow) ? e.pbshow(f) : d.hasClass("closed") && a.isFunction(postboxes.pbhide) && e.pbhide(f)), b.trigger("postbox-toggled", d))
-            }), a(".postbox .hndle a").click(function(a) {
+                "dashboard_browser_nag" != f && (d.toggleClass("closed"), "press-this" != c && e.save_state(c), f && (!d.hasClass("closed") && ("function"==typeof postboxes.pbshow) ? e.pbshow(f) : d.hasClass("closed") && ("function"==typeof postboxes.pbhide) && e.pbhide(f)), b.trigger("postbox-toggled", d))
+            }), a(".postbox .hndle a").on("click",function(a) {
                 a.stopPropagation()
-            }), a(".postbox a.dismiss").bind("click.postboxes", function() {
+            }), a(".postbox a.dismiss").on("click.postboxes", function() {
                 var b = a(this).parents(".postbox").attr("id") + "-hide";
                 return a("#" + b).prop("checked", !1).triggerHandler("click"), !1
-            }), a(".hide-postbox-tog").bind("click.postboxes", function() {
+            }), a(".hide-postbox-tog").on("click.postboxes", function() {
                 var d = a(this).val(),
                     f = a("#" + d);
-                a(this).prop("checked") ? (f.show(), a.isFunction(postboxes.pbshow) && e.pbshow(d)) : (f.hide(), a.isFunction(postboxes.pbhide) && e.pbhide(d)), e.save_state(c), e._mark_area(), b.trigger("postbox-toggled", f)
-            }), a('.columns-prefs input[type="radio"]').bind("click.postboxes", function() {
+                a(this).prop("checked") ? (f.show(), ("function"==typeof postboxes.pbshow) && e.pbshow(d)) : (f.hide(), ("function"==typeof postboxes.pbhide) && e.pbhide(d)), e.save_state(c), e._mark_area(), b.trigger("postbox-toggled", f)
+            }), a('.columns-prefs input[type="radio"]').on("click.postboxes", function() {
                 var b = parseInt(a(this).val(), 10);
                 b && (e._pb_edit(b), e.save_order(c))
             })
@@ -1433,7 +1437,7 @@ var postboxes;
                 receive: function(b, c) {
                     "dashboard_browser_nag" == c.item[0].id && a(c.sender).sortable("cancel"), postboxes._mark_area()
                 }
-            }), d && (a(document.body).bind("orientationchange.postboxes", function() {
+            }), d && (a(document.body).on("orientationchange.postboxes", function() {
                 postboxes._pb_change()
             }), this._pb_change()), this._mark_area()
         },
@@ -1658,7 +1662,7 @@ var wpNavMenu;
                     if (l["menu-item-parent-id"] === t) break;
                     j.shiftHorizontally(1)
             }
-            c.focus(), b.registerChange(), b.refreshKeyboardAccessibility(), b.refreshAdvancedAccessibility()
+            c.trigger("focus"), b.registerChange(), b.refreshKeyboardAccessibility(), b.refreshAdvancedAccessibility()
         },
         initAccessibility: function() {
             var c = a("#menu-to-edit");
@@ -1720,7 +1724,7 @@ var wpNavMenu;
                             case "right":
                                 b.moveMenuItem(e, "right")
                         }
-                        return a("#edit-" + g["menu-item-db-id"]).focus(), !1
+                        return a("#edit-" + g["menu-item-db-id"]).trigger("focus"), !1
                     }
                 })
             })
@@ -1736,7 +1740,7 @@ var wpNavMenu;
                 a(".field-" + b).removeClass("hidden-field")
             }, columns.unchecked = function(b) {
                 a(".field-" + b).addClass("hidden-field")
-            }, b.menuList.hideAdvancedMenuItemFields(), a(".hide-postbox-tog").click(function() {
+            }, b.menuList.hideAdvancedMenuItemFields(), a(".hide-postbox-tog").on("click",function() {
                 var b = a(".accordion-container li.accordion-section").filter(":hidden").map(function() {
                     return this.id
                 }).get().join(",");
@@ -1803,7 +1807,7 @@ var wpNavMenu;
             })
         },
         initManageLocations: function() {
-            a("#menu-locations-wrap form").submit(function() {
+            a("#menu-locations-wrap form").on("submit",function() {
                 window.onbeforeunload = null
             }), a(".menu-location-menus select").on("change", function() {
                 var b = a(this).closest("tr").find(".locations-edit-menu-link");
@@ -1812,14 +1816,14 @@ var wpNavMenu;
         },
         attachMenuEditListeners: function() {
             var b = this;
-            a("#update-nav-menu").bind("click", function(a) {
+            a("#update-nav-menu").on("click", function(a) {
                 if (a.target && a.target.className) {
                     if (-1 != a.target.className.indexOf("item-edit")) return b.eventOnClickEditLink(a.target);
                     if (-1 != a.target.className.indexOf("item-delete")) return b.eventOnClickMenuItemDelete(a.target);
                     if (-1 != a.target.className.indexOf("item-cancel")) return b.eventOnClickCancelLink(a.target)
                 }
-            }), a('#add-custom-links input[type="text"]').keypress(function(b) {
-                13 === b.keyCode && (b.preventDefault(), a("#submit-customlinkdiv").click())
+            }), a('#add-custom-links input[type="text"]').on("keypress",function(b) {
+                13 === b.keyCode && (b.preventDefault(), a("#submit-customlinkdiv").trigger("click"))
             })
         },
         setupInputWithDefaultTitle: function() {
@@ -1833,18 +1837,18 @@ var wpNavMenu;
                     if (d == e) return;
                     c.removeClass(b)
                 }
-            }).focus(function() {
+            }).on("focus",function() {
                 var c = a(this);
                 c.val() == c.data(b) && c.val("").removeClass(b)
-            }).blur(function() {
+            }).on("blur",function() {
                 var c = a(this);
                 "" === c.val() && c.addClass(b).val(c.data(b))
-            }), a(".blank-slate .input-with-default-title").focus()
+            }), a(".blank-slate .input-with-default-title").trigger("focus")
         },
         attachThemeLocationsListeners: function() {
             var b = a("#nav-menu-theme-locations"),
                 c = {};
-            c.action = "menu-locations-save", c["menu-settings-column-nonce"] = a("#menu-settings-column-nonce").val(), b.find('input[type="submit"]').click(function() {
+            c.action = "menu-locations-save", c["menu-settings-column-nonce"] = a("#menu-settings-column-nonce").val(), b.find('input[type="submit"]').on("click",function() {
                 return b.find("select").each(function() {
                     c[this.name] = a(this).val()
                 }), b.find(".spinner").show(), a.post(ajaxurl, c, function() {
@@ -1854,7 +1858,7 @@ var wpNavMenu;
         },
         attachQuickSearchListeners: function() {
             var c;
-            a(".quick-search").keypress(function(d) {
+            a(".quick-search").on("keypress",function(d) {
                 var e = a(this);
                 return 13 == d.which ? (b.updateQuickSearchResults(e), !1) : (c && clearTimeout(c), void(c = setTimeout(function() {
                     b.updateQuickSearchResults(e)
@@ -1882,19 +1886,19 @@ var wpNavMenu;
             a(c).hideAdvancedMenuItemFields().prependTo(b.targetList), b.refreshKeyboardAccessibility(), b.refreshAdvancedAccessibility()
         },
         attachUnsavedChangesListener: function() {
-            a("#menu-management input, #menu-management select, #menu-management, #menu-management textarea, .menu-location-menus select").change(function() {
+            a("#menu-management input, #menu-management select, #menu-management, #menu-management textarea, .menu-location-menus select").on("change",function() {
                 b.registerChange()
             }), 0 !== a("#menu-to-edit").length || 0 !== a(".menu-location-menus select").length ? window.onbeforeunload = function() {
              
-            } : a("#menu-settings-column").find("input,select").end().find("a").attr("href", "#").unbind("click")
+            } : a("#menu-settings-column").find("input,select").end().find("a").attr("href", "#").off("click")
         },
         registerChange: function() {
             b.menusChanged = !0
         },
         attachTabsPanelListeners: function() {
-            a("#menu-settings-column").bind("click", function(c) {
+            a("#menu-settings-column").on("click", function(c) {
                 var d, e, f, g, h = a(c.target);
-                if (h.hasClass("nav-tab-link")) e = h.data("type"), f = h.parents(".accordion-section-content").first(), a("input", f).removeAttr("checked"), a(".tabs-panel-active", f).removeClass("tabs-panel-active").addClass("tabs-panel-inactive"), a("#" + e, f).removeClass("tabs-panel-inactive").addClass("tabs-panel-active"), a(".tabs", f).removeClass("tabs"), h.parent().addClass("tabs"), a(".quick-search", f).focus(), c.preventDefault();
+                if (h.hasClass("nav-tab-link")) e = h.data("type"), f = h.parents(".accordion-section-content").first(), a("input", f).removeAttr("checked"), a(".tabs-panel-active", f).removeClass("tabs-panel-active").addClass("tabs-panel-inactive"), a("#" + e, f).removeClass("tabs-panel-inactive").addClass("tabs-panel-active"), a(".tabs", f).removeClass("tabs"), h.parent().addClass("tabs"), a(".quick-search", f).trigger("focus"), c.preventDefault();
                 else if (h.hasClass("select-all")) {
                     if (d = /#(.*)$/.exec(c.target.href), d && d[1]) return g = a("#" + d[1] + " .tabs-panel-active .menu-item-title input"), g.length === g.filter(":checked").length ? g.removeAttr("checked") : g.prop("checked", !0), !1
                 } else {

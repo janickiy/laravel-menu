@@ -4,7 +4,6 @@ namespace Harimayco\Menu\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Harimayco\Menu\Models\MenuItems;
 
 class Menus extends Model
 {
@@ -12,11 +11,12 @@ class Menus extends Model
 
     public function __construct(array $attributes = [])
     {
-        //parent::construct( $attributes );
+        parent::__construct($attributes);
+
         $this->table = config('menu.table_prefix') . config('menu.table_name_menus');
     }
 
-    public static function byName(string $name)
+    public static function byName(string $name): ?self
     {
         return self::where('name', $name)->first();
     }

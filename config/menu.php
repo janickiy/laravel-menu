@@ -2,8 +2,13 @@
 
 return [
 /* you can add your own middleware here */
-	
-   'middleware' => [],
+
+    'middleware' => [],
+
+/* interface locale. Supported locales: en, ru, de, fr, es, pt, zh, ja, ar */
+    'locale' => env('MENU_LOCALE', 'en'),
+
+    'supported_locales' => ['en', 'ru', 'de', 'fr', 'es', 'pt', 'zh', 'ja', 'ar'],
 
 /* you can set your own table prefix here */
     'table_prefix' => 'admin_',

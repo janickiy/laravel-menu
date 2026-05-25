@@ -8,24 +8,20 @@ class AddRoleIdToMenuItemsTable extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table(config('menu.table_prefix') . config('menu.table_name_items'), function ($table) {
+        Schema::table(config('menu.table_prefix') . config('menu.table_name_items'), function (Blueprint $table): void {
             $table->integer('role_id')->default(0);
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table(config('menu.table_prefix') . config('menu.table_name_items'), function ($table) {
+        Schema::table(config('menu.table_prefix') . config('menu.table_name_items'), function (Blueprint $table): void {
             $table->dropColumn('role_id');
         });
     }

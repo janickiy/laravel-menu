@@ -4,8 +4,8 @@
     "keywords": ["Laravel", "Menu", "Wordpress", "Builder"],
     "authors": [
     	{
-            "name": "Rendy Harimayco",
-            "email": "rendyharimayco@gmail.com",
+            "name": "Alexander Yanitskiy",
+            "email": "janickiy@mail.ru",
             "role": "Developer"
         },
         {
@@ -15,8 +15,8 @@
         }
     ],
     "require": {
-        "php": ">=8.1",
-        "illuminate/support": "8.* || 9.* || 10.* || 11.* || 12.*"
+        "php": ">=8.3",
+        "illuminate/support": "10.* || 11.* || 12.* || 13.*"
     },
     "autoload": {
         "psr-4": {

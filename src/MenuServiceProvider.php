@@ -2,23 +2,19 @@
 
 namespace Harimayco\Menu;
 
+use Harimayco\Menu\Controllers\MenuController;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Foundation\AliasLoader;
 
 class MenuServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        if (!$this->app->routesAreCached()) {
-            require  __DIR__ . '/routes.php';
-        }
-
+        $this->loadRoutesFrom(__DIR__ . '/routes.php');
         $this->loadViewsFrom(__DIR__ . '/Views', 'wmenu');
+        $this->loadTranslationsFrom(__DIR__ . '/../lang', 'wmenu');
 
         $this->publishes([
             __DIR__ . '/../config/menu.php'  => config_path('menu.php'),
@@ -27,6 +23,10 @@ class MenuServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/Views'   => resource_path('views/vendor/wmenu'),
         ], 'view');
+
+        $this->publishes([
+            __DIR__ . '/../lang' => $this->app->langPath('vendor/wmenu'),
+        ], 'lang');
 
         $this->publishes([
             __DIR__ . '/../assets' => public_path('vendor/harimayco-menu'),
@@ -41,16 +41,14 @@ class MenuServiceProvider extends ServiceProvider
 
     /**
      * Register the application services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
-        $this->app->bind('harimayco-menu', function () {
+        $this->app->bind('harimayco-menu', function (): WMenu {
             return new WMenu();
         });
 
-        $this->app->make('Harimayco\Menu\Controllers\MenuController');
+        $this->app->make(MenuController::class);
         $this->mergeConfigFrom(
             __DIR__ . '/../config/menu.php',
             'menu'

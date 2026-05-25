@@ -1,15 +1,24 @@
+@php
+	$locale = (string) config('menu.locale', 'en');
+	$locale = in_array($locale, (array) config('menu.supported_locales', ['en']), true) ? $locale : 'en';
+	$t = static fn (string $key): string => (string) trans("wmenu::messages.{$key}", [], $locale);
+@endphp
 <script>
 	var menus = {
 		"oneThemeLocationNoMenus" : "",
-		"moveUp" : "Move up",
-		"moveDown" : "Mover down",
-		"moveToTop" : "Move top",
-		"moveUnder" : "Move under of %s",
-		"moveOutFrom" : "Out from under  %s",
-		"under" : "Under %s",
-		"outFrom" : "Out from %s",
-		"menuFocus" : "%1$s. Element menu %2$d of %3$d.",
-		"subMenuFocus" : "%1$s. Menu of subelement %2$d of %3$s."
+		"moveUp" : @json($t('move_up')),
+		"moveDown" : @json($t('move_down')),
+		"moveToTop" : @json($t('move_to_top')),
+		"moveUnder" : @json($t('move_under')),
+		"moveOutFrom" : @json($t('move_out_from')),
+		"under" : @json($t('under')),
+		"outFrom" : @json($t('out_from')),
+		"menuFocus" : @json($t('menu_focus')),
+		"subMenuFocus" : @json($t('submenu_focus'))
+	};
+	window.menuTranslations = {
+		"confirmDeleteMenu": @json($t('confirm_delete_menu')),
+		"enterMenuName": @json($t('enter_menu_name_alert'))
 	};
 	var arraydata = [];     
 	var addcustommenur= '{{ route("haddcustommenu") }}';

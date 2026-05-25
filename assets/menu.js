@@ -1,28 +1,33 @@
+'use strict';
+
 var arraydata = [];
+
 function getmenus() {
   arraydata = [];
   $('#spinsavemenu').show();
 
-  var cont = 0;
-  $('#menu-to-edit li').each(function(index) {
-    var dept = 0;
-    for (var i = 0; i < $('#menu-to-edit li').length; i++) {
-      var n = $(this)
+  let cont = 0;
+  const menuItems = $('#menu-to-edit li');
+
+  menuItems.each(function() {
+    let dept = 0;
+    for (let i = 0; i < menuItems.length; i++) {
+      const n = $(this)
         .attr('class')
         .indexOf('menu-item-depth-' + i);
-      if (n != -1) {
+      if (n !== -1) {
         dept = i;
       }
     }
-    var textoiner = $(this)
+    const textoiner = $(this)
       .find('.item-edit')
       .text();
-    var id = this.id.split('-');
-    var textoexplotado = textoiner.split('|');
-    var padre = 0;
+    const id = this.id.split('-');
+    const textoexplotado = textoiner.split('|');
+    let padre = 0;
     if (
       !!textoexplotado[textoexplotado.length - 2] &&
-      textoexplotado[textoexplotado.length - 2] != id[2]
+      textoexplotado[textoexplotado.length - 2] !== id[2]
     ) {
       padre = textoexplotado[textoexplotado.length - 2];
     }
@@ -51,7 +56,7 @@ function addcustommenu() {
 
     url: addcustommenur,
     type: 'POST',
-    success: function(response) {
+    success: function() {
       window.location.reload();
     },
     complete: function() {
@@ -61,16 +66,18 @@ function addcustommenu() {
 }
 
 function updateitem(id = 0) {
+  let data;
+
   if (id) {
-    var label = $('#idlabelmenu_' + id).val();
-    var clases = $('#clases_menu_' + id).val();
-    var url = $('#url_menu_' + id).val();
-    var role_id = 0;
+    const label = $('#idlabelmenu_' + id).val();
+    const clases = $('#clases_menu_' + id).val();
+    const url = $('#url_menu_' + id).val();
+    let role_id = 0;
     if ($('#role_menu_' + id).length) {
       role_id = $('#role_menu_' + id).val();
     }
 
-    var data = {
+    data = {
       label: label,
       clases: clases,
       url: url,
@@ -78,21 +85,21 @@ function updateitem(id = 0) {
       id: id
     };
   } else {
-    var arr_data = [];
-    $('.menu-item-settings').each(function(k, v) {
-      var id = $(this)
+    const arr_data = [];
+    $('.menu-item-settings').each(function() {
+      const id = $(this)
         .find('.edit-menu-item-id')
         .val();
-      var label = $(this)
+      const label = $(this)
         .find('.edit-menu-item-title')
         .val();
-      var clases = $(this)
+      const clases = $(this)
         .find('.edit-menu-item-classes')
         .val();
-      var url = $(this)
+      const url = $(this)
         .find('.edit-menu-item-url')
         .val();
-      var role = $(this)
+      const role = $(this)
         .find('.edit-menu-item-role')
         .val();
       arr_data.push({
@@ -104,18 +111,17 @@ function updateitem(id = 0) {
       });
     });
 
-    var data = { arraydata: arr_data };
+    data = { arraydata: arr_data };
   }
   $.ajax({
     data: data,
     url: updateitemr,
     type: 'POST',
-    beforeSend: function(xhr) {
+    beforeSend: function() {
       if (id) {
         $('#spincustomu2').show();
       }
     },
-    success: function(response) {},
     complete: function() {
       if (id) {
         $('#spincustomu2').hide();
@@ -135,11 +141,8 @@ function actualizarmenu() {
 
     url: generatemenucontrolr,
     type: 'POST',
-    beforeSend: function(xhr) {
+    beforeSend: function() {
       $('#spincustomu2').show();
-    },
-    success: function(response) {
-      console.log('aqu llega');
     },
     complete: function() {
       $('#spincustomu2').hide();
@@ -155,14 +158,14 @@ function deleteitem(id) {
     },
 
     url: deleteitemmenur,
-    type: 'POST',
-    success: function(response) {}
+    type: 'POST'
   });
 }
 
 function deletemenu() {
-  var r = confirm('Do you want to delete this menu ?');
-  if (r == true) {
+  const translations = window.menuTranslations || {};
+  const shouldDelete = confirm(translations.confirmDeleteMenu || '');
+  if (shouldDelete === true) {
     $.ajax({
       dataType: 'json',
 
@@ -172,7 +175,7 @@ function deletemenu() {
 
       url: deletemenugr,
       type: 'POST',
-      beforeSend: function(xhr) {
+      beforeSend: function() {
         $('#spincustomu2').show();
       },
       success: function(response) {
@@ -193,7 +196,7 @@ function deletemenu() {
 }
 
 function createnewmenu() {
-  if (!!$('#menu-name').val()) {
+  if ($('#menu-name').val()) {
     $.ajax({
       dataType: 'json',
 
@@ -208,36 +211,17 @@ function createnewmenu() {
       }
     });
   } else {
-    alert('Enter menu name!');
-    $('#menu-name').focus();
+    const translations = window.menuTranslations || {};
+    alert(translations.enterMenuName || '');
+    $('#menu-name').trigger('focus');
     return false;
   }
 }
 
 function insertParam(key, value) {
-  key = encodeURI(key);
-  value = encodeURI(value);
-
-  var kvp = document.location.search.substr(1).split('&');
-
-  var i = kvp.length;
-  var x;
-  while (i--) {
-    x = kvp[i].split('=');
-
-    if (x[0] == key) {
-      x[1] = value;
-      kvp[i] = x.join('=');
-      break;
-    }
-  }
-
-  if (i < 0) {
-    kvp[kvp.length] = [key, value].join('=');
-  }
-
-  //this will reload the page, it's likely better to store this until finished
-  document.location.search = kvp.join('&');
+  const params = new URLSearchParams(window.location.search);
+  params.set(key, value);
+  window.location.search = params.toString();
 }
 
 wpNavMenu.registerChange = function() {

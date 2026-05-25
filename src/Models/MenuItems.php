@@ -2,11 +2,10 @@
 
 namespace Harimayco\Menu\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Harimayco\Menu\Models\MenuItems;
-use Harimayco\Menu\Models\Menus;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MenuItems extends Model
 {
@@ -17,27 +16,28 @@ class MenuItems extends Model
 
     public function __construct(array $attributes = [])
     {
-        //parent::construct( $attributes );
+        parent::__construct($attributes);
+
         $this->table = config('menu.table_prefix') . config('menu.table_name_items');
     }
 
-    public function getsons(?int $id)
+    public function getsons(?int $id): Collection
     {
-        return $this->where("parent", $id)->get();
+        return $this->where('parent', $id)->get();
     }
 
-    public function getall(?int $id)
+    public function getall(?int $id): Collection
     {
-        return $this->where("menu", $id)->orderBy("sort", "asc")->get();
+        return $this->where('menu', $id)->orderBy('sort', 'asc')->get();
     }
 
     /**
      * @param int $menu
      * @return int
      */
-    public static function getNextSortRoot(int $menu)
+    public static function getNextSortRoot(int $menu): int
     {
-        return self::where('menu', $menu)->max('sort') + 1;
+        return ((int) self::where('menu', $menu)->max('sort')) + 1;
     }
 
     public function parent_menu(): BelongsTo
